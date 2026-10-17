@@ -10,7 +10,7 @@ import { GlobalSettingsPage } from './pages/GlobalSettingsPage'
 
 import { PmsQueryProvider } from './Systems/PMS/queryClient'
 
-// PMS System Pages
+// H3MS System Pages
 import { PmsDashboardPage } from './Systems/PMS/pages/PmsDashboardPage'
 import { PmsBookingsPage } from './Systems/PMS/pages/PmsBookingsPage'
 import { PmsMenuFinalizePage } from './Systems/PMS/pages/PmsMenuFinalizePage'
@@ -41,6 +41,15 @@ import { CrockeryDashboardPage } from './Systems/Crockery/pages/CrockeryDashboar
 import { CrockeryStockPage } from './Systems/Crockery/pages/CrockeryStockPage'
 import { CrockeryInventoryPage } from './Systems/Crockery/pages/CrockeryInventoryPage'
 import { CrockeryMasterPage } from './Systems/Crockery/pages/CrockeryMasterPage'
+
+// HRMS System Pages
+import { HrmsAttendancePage } from './Systems/HRMS/pages/HrmsAttendancePage'
+import { HrmsDirectoryPage } from './Systems/HRMS/pages/HrmsDirectoryPage'
+import { HrmsPerformancePage } from './Systems/HRMS/pages/HrmsPerformancePage'
+import { HrmsAdvancesPage } from './Systems/HRMS/pages/HrmsAdvancesPage'
+import { HrmsApprovalPage } from './Systems/HRMS/pages/HrmsApprovalPage'
+import { HrmsOvertimePage } from './Systems/HRMS/pages/HrmsOvertimePage'
+import { HrmsPayrollPage } from './Systems/HRMS/pages/HrmsPayrollPage'
 
 // Root index redirect based on auth status
 function IndexRedirect() {
@@ -83,7 +92,7 @@ export function App() {
               }
             />
 
-            {/* PMS System Routes */}
+            {/* H3MS System Routes */}
             <Route path="/pms" element={<Navigate to="/pms/dashboard" replace />} />
             <Route
               path="/pms/dashboard"
@@ -324,6 +333,66 @@ export function App() {
               element={
                 <ProtectedRoute system="ims" page="master">
                   <CrockeryMasterPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* HRMS System Routes */}
+            <Route path="/hrms" element={<Navigate to="/hrms/attendance" replace />} />
+            <Route
+              path="/hrms/attendance"
+              element={
+                <ProtectedRoute system="hrms" page="attendance">
+                  <HrmsAttendancePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hrms/directory"
+              element={
+                <ProtectedRoute system="hrms" page="directory">
+                  <HrmsDirectoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hrms/performance"
+              element={
+                <ProtectedRoute system="hrms" page="performance">
+                  <HrmsPerformancePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hrms/advances"
+              element={
+                <ProtectedRoute system="hrms" page="advances">
+                  <HrmsAdvancesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hrms/approval"
+              element={
+                <ProtectedRoute system="hrms" page="approval">
+                  <HrmsApprovalPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/hrms/approvals" element={<Navigate to="/hrms/approval" replace />} />
+            <Route
+              path="/hrms/overtime"
+              element={
+                <ProtectedRoute system="hrms" page="overtime">
+                  <HrmsOvertimePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hrms/payroll"
+              element={
+                <ProtectedRoute system="hrms" page="payroll">
+                  <HrmsPayrollPage />
                 </ProtectedRoute>
               }
             />

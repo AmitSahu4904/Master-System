@@ -1,5 +1,5 @@
-import React from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import React, { useMemo } from 'react'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard,
   Settings,
@@ -28,15 +28,39 @@ import {
   Flower2,
   ConciergeBell,
   Briefcase,
-  BellRing
+  BellRing,
+  CalendarCheck,
+  CreditCard,
+  CheckSquare,
+  Banknote,
+  TrendingUp,
+  Users,
+  Clock
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { usePendingCounts } from '../../Systems/PMS/hooks/usePendingCounts'
+import { staffStorageService } from '../../Systems/HRMS/services/hrmsStorageService'
 
 export function Sidebar({ mobileOpen, setMobileOpen }) {
   const { currentUser, isAdmin, canAccessSystem, canAccessPage, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const pendingCounts = usePendingCounts()
+
+  const hrmsPendingCounts = useMemo(() => {
+    try {
+      const advances = staffStorageService.getAdvances()
+      const pendingAdv = advances.filter((a) => a.status === 'Pending').length
+      const ot = staffStorageService.getOvertime()
+      const pendingOt = ot.filter((o) => o.status === 'Pending').length
+      return {
+        approval: pendingAdv,
+        overtime: pendingOt
+      }
+    } catch {
+      return {}
+    }
+  }, [location.pathname])
 
   const handleLogout = () => {
     logout()
@@ -55,9 +79,20 @@ export function Sidebar({ mobileOpen, setMobileOpen }) {
 
   const hasPms = canAccessSystem('pms')
   const hasCrockery = canAccessSystem('ims')
+  const hasHrms = canAccessSystem('hrms')
+
+  const hrmsNavItems = [
+    { name: 'Daily Attendance', path: '/hrms/attendance', icon: CalendarCheck, show: canAccessPage('hrms', 'attendance'), key: 'attendance' },
+    { name: 'Staff Directory', path: '/hrms/directory', icon: Users, show: canAccessPage('hrms', 'directory'), key: 'directory' },
+    { name: 'Performance & TAT', path: '/hrms/performance', icon: TrendingUp, show: canAccessPage('hrms', 'performance'), key: 'performance' },
+    { name: 'Salary Advances', path: '/hrms/advances', icon: CreditCard, show: canAccessPage('hrms', 'advances'), key: 'advances' },
+    { name: 'Advance Approval', path: '/hrms/approval', icon: CheckSquare, show: canAccessPage('hrms', 'approval'), key: 'approval' },
+    { name: 'Overtime (OT)', path: '/hrms/overtime', icon: Clock, show: canAccessPage('hrms', 'overtime'), key: 'overtime' },
+    { name: 'Monthly Payroll', path: '/hrms/payroll', icon: Banknote, show: canAccessPage('hrms', 'payroll'), key: 'payroll' },
+  ].filter((item) => item.show)
 
   const pmsNavItems = [
-    { name: 'PMS Dashboard', path: '/pms/dashboard', icon: LayoutDashboard, show: canAccessPage('pms', 'dashboard'), key: 'dashboard' },
+    { name: 'H3MS Dashboard', path: '/pms/dashboard', icon: LayoutDashboard, show: canAccessPage('pms', 'dashboard'), key: 'dashboard' },
     { name: 'Booking Master', path: '/pms/bookings', icon: CalendarDays, show: canAccessPage('pms', 'bookings'), key: 'bookings' },
     { name: 'Menu Finalize', path: '/pms/menu-finalize', icon: ClipboardList, show: canAccessPage('pms', 'menuFinalize'), key: 'menuFinalize' },
     { name: 'Menu AI Chatbot', path: '/pms/menu-chatbot', icon: Sparkles, show: canAccessPage('pms', 'menuChatbot'), key: 'menuChatbot' },
@@ -192,12 +227,12 @@ export function Sidebar({ mobileOpen, setMobileOpen }) {
             })}
         </div>
 
-        {/* PMS System Section */}
+        {/* H3MS System Section */}
         {hasPms && pmsNavItems.length > 0 && (
           <div className="space-y-1 pt-2 border-t border-slate-100">
             <div className="px-3 pb-1 flex items-center gap-1.5 text-[10px] font-bold text-blue-700 uppercase tracking-widest">
               <CalendarDays className="w-3.5 h-3.5 text-blue-600" />
-              <span>PMS System</span>
+              <span>H3MS System</span>
             </div>
             {pmsNavItems.map((item) => {
               const Icon = item.icon
@@ -283,6 +318,61 @@ export function Sidebar({ mobileOpen, setMobileOpen }) {
                         }`}
                       />
                       <span>{item.name}</span>
+                    </>
+                  )}
+                </NavLink>
+              )
+            })}
+          </div>
+        )}
+
+        {/* HRMS System Section */}
+        {hasHrms && hrmsNavItems.length > 0 && (
+          <div className="space-y-1 pt-2 border-t border-slate-100">
+            <div className="px-3 pb-1 flex items-center gap-1.5 text-[10px] font-bold text-rose-700 uppercase tracking-widest">
+              <CalendarCheck className="w-3.5 h-3.5 text-rose-600" />
+              <span>HRMS System</span>
+            </div>
+            {hrmsNavItems.map((item) => {
+              const Icon = item.icon
+              const count = item.key ? hrmsPendingCounts?.[item.key] : undefined
+              const hasCount = typeof count === 'number' && count > 0
+
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileOpen && setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl font-medium text-sm transition-all duration-200 group ${
+                      isActive
+                        ? 'bg-rose-600 text-white shadow-md shadow-rose-200 font-semibold'
+                        : 'text-slate-600 hover:bg-rose-50/60 hover:text-rose-900'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Icon
+                          className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
+                            isActive ? 'text-white' : 'text-slate-400 group-hover:text-rose-600'
+                          }`}
+                        />
+                        <span className="truncate">{item.name}</span>
+                      </div>
+
+                      {hasCount && (
+                        <span
+                          className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs rounded-full shrink-0 font-bold transition-all ${
+                            isActive
+                              ? 'bg-white text-rose-600 shadow-xs'
+                              : 'bg-rose-600 text-white shadow-xs'
+                          }`}
+                        >
+                          {count}
+                        </span>
+                      )}
                     </>
                   )}
                 </NavLink>

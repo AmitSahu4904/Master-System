@@ -20,7 +20,7 @@ import {
 // Page Definitions for PMS module (24 total: 5 core, 17 departments, 2 master & logs)
 export const PMS_PAGES = [
   // Core / Management
-  { id: 'dashboard', name: 'PMS Dashboard', route: '/pms/dashboard', desc: 'Active bookings pipeline & real-time delay tracking' },
+  { id: 'dashboard', name: 'H3MS Dashboard', route: '/pms/dashboard', desc: 'Active bookings pipeline & real-time delay tracking' },
   { id: 'bookings', name: 'Booking Master', route: '/pms/bookings', desc: 'Create, modify and manage event bookings' },
   { id: 'menuFinalize', name: 'Menu Finalize', route: '/pms/menu-finalize', desc: 'Customer menu finalization and decision logs' },
   { id: 'menuChatbot', name: 'Menu AI Chatbot', route: '/pms/menu-chatbot', desc: 'AI-assisted menu query assistant' },
@@ -58,7 +58,18 @@ export const IMS_PAGES = [
   { id: 'master', name: 'Item Master & Dropdowns', route: '/crockery/master', desc: 'Manage catalogue, rental prices & categories' },
 ]
 
-export const TOTAL_PAGE_COUNT = PMS_PAGES.length + IMS_PAGES.length
+// Page Definitions for HRMS module (7 pages)
+export const HRMS_PAGES = [
+  { id: 'attendance', name: 'Daily Attendance', route: '/hrms/attendance', desc: 'Real-time punch in/out, face photo capture with live GPS stamp' },
+  { id: 'directory', name: 'Staff Directory', route: '/hrms/directory', desc: 'Registered staff profiles, salaries, designations & active status' },
+  { id: 'performance', name: 'Performance & TAT', route: '/hrms/performance', desc: 'Employee turnaround times, shift hours, punctuality & consistency' },
+  { id: 'advances', name: 'Salary Advances', route: '/hrms/advances', desc: 'Advance disbursement ledger, balance tracking & monthly deductions' },
+  { id: 'approval', name: 'Advance Approval', route: '/hrms/approval', desc: 'Manager review & approval pipeline for staff salary loan requests' },
+  { id: 'overtime', name: 'Overtime (OT)', route: '/hrms/overtime', desc: 'Extra work hours tracking, OT verification, approval & hourly pay' },
+  { id: 'payroll', name: 'Monthly Payroll', route: '/hrms/payroll', desc: 'Attendance wage calculations, leave cuts, OT, EMIs & salary slips' },
+]
+
+export const TOTAL_PAGE_COUNT = PMS_PAGES.length + IMS_PAGES.length + HRMS_PAGES.length
 
 export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
   const [activeTab, setActiveTab] = useState('details') // 'details' | 'permissions'
@@ -79,6 +90,7 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
       pete: { access: false, role: 'user', pages: [] },
       ims: { access: false, role: 'user', full_access: false, pages: [] },
       pms: { access: false, role: 'staff', full_access: false, pages: [] },
+      hrms: { access: false, role: 'staff', full_access: false, pages: [] },
     }
   })
 
@@ -111,6 +123,12 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
             full_access: pAccess.pms?.full_access || false,
             pages: Array.isArray(pAccess.pms?.pages) ? pAccess.pms.pages : [],
           },
+          hrms: {
+            access: pAccess.hrms?.access || false,
+            role: pAccess.hrms?.role || 'staff',
+            full_access: pAccess.hrms?.full_access || false,
+            pages: Array.isArray(pAccess.hrms?.pages) ? pAccess.hrms.pages : [],
+          },
         }
       })
     } else {
@@ -125,6 +143,7 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
           pete: { access: false, role: 'user', pages: [] },
           ims: { access: false, role: 'user', full_access: false, pages: [] },
           pms: { access: false, role: 'staff', full_access: false, pages: [] },
+          hrms: { access: false, role: 'staff', full_access: false, pages: [] },
         }
       })
     }
@@ -153,6 +172,13 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
         count += (pa.pms.pages || []).length
       }
     }
+    if (pa.hrms?.access) {
+      if (pa.hrms.full_access) {
+        count += HRMS_PAGES.length
+      } else {
+        count += (pa.hrms.pages || []).length
+      }
+    }
     return count
   }, [formData.page_access])
 
@@ -161,6 +187,9 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
   // Handlers for Details Tab
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
+    if (name === 'role' && value === 'admin') {
+      setActiveTab('details')
+    }
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -178,6 +207,7 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
       if (newAccess && (!newPages || newPages.length === 0)) {
         if (moduleKey === 'ims') newPages = IMS_PAGES.map((p) => p.id)
         if (moduleKey === 'pms') newPages = PMS_PAGES.map((p) => p.id)
+        if (moduleKey === 'hrms') newPages = HRMS_PAGES.map((p) => p.id)
       }
 
       return {
@@ -243,6 +273,24 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
     })
   }
 
+  const handleHrmsFullAccessToggle = () => {
+    setFormData((prev) => {
+      const current = prev.page_access.hrms || {}
+      const newFullAccess = !current.full_access
+      return {
+        ...prev,
+        page_access: {
+          ...prev.page_access,
+          hrms: {
+            ...current,
+            full_access: newFullAccess,
+            pages: newFullAccess ? HRMS_PAGES.map((p) => p.id) : current.pages,
+          },
+        },
+      }
+    })
+  }
+
   const handlePageToggle = (moduleKey, pageId) => {
     setFormData((prev) => {
       const currentModule = prev.page_access[moduleKey] || { access: true, pages: [] }
@@ -271,6 +319,7 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
     let allPageIds = []
     if (moduleKey === 'ims') allPageIds = IMS_PAGES.map((p) => p.id)
     if (moduleKey === 'pms') allPageIds = PMS_PAGES.map((p) => p.id)
+    if (moduleKey === 'hrms') allPageIds = HRMS_PAGES.map((p) => p.id)
 
     setFormData((prev) => {
       const currentModule = prev.page_access[moduleKey] || {}
@@ -297,6 +346,7 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
         ...prev.page_access,
         ims: { access: true, role: 'admin', full_access: true, pages: IMS_PAGES.map((p) => p.id) },
         pms: { access: true, role: 'admin', full_access: true, pages: PMS_PAGES.map((p) => p.id) },
+        hrms: { access: true, role: 'admin', full_access: true, pages: HRMS_PAGES.map((p) => p.id) },
       },
     }))
   }
@@ -308,6 +358,7 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
         ...prev.page_access,
         ims: { access: false, role: 'user', full_access: false, pages: [] },
         pms: { access: false, role: 'staff', full_access: false, pages: [] },
+        hrms: { access: false, role: 'staff', full_access: false, pages: [] },
       },
     }))
   }
@@ -337,13 +388,38 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
 
     setSaving(true)
     try {
+      const isAdmin = formData.role === 'admin'
+
+      const pageAccessPayload = isAdmin
+        ? {
+            ims: {
+              access: true,
+              role: 'admin',
+              full_access: true,
+              pages: IMS_PAGES.map((p) => p.id),
+            },
+            pms: {
+              access: true,
+              role: 'admin',
+              full_access: true,
+              pages: PMS_PAGES.map((p) => p.id),
+            },
+            hrms: {
+              access: true,
+              role: 'admin',
+              full_access: true,
+              pages: HRMS_PAGES.map((p) => p.id),
+            },
+          }
+        : formData.page_access
+
       const payload = {
         username: formData.username.trim().toLowerCase(),
         full_name: formData.full_name.trim(),
         role: formData.role,
         mobile_number: formData.mobile_number?.trim() || '',
         is_active: formData.is_active,
-        page_access: formData.page_access,
+        page_access: pageAccessPayload,
       }
 
       if (formData.password?.trim()) {
@@ -416,23 +492,30 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
           >
             <User className="w-4 h-4" />
             <span>User Details</span>
+            {formData.role === 'admin' && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700 ml-1">
+                Full Access (Admin)
+              </span>
+            )}
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('permissions')}
-            className={`flex items-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm border-b-2 whitespace-nowrap transition-colors ${
-              activeTab === 'permissions'
-                ? 'border-violet-600 text-violet-600'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            <span>Page Permissions</span>
-            <span className="px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-violet-100 text-violet-700">
-              {totalEnabledPages}/{TOTAL_PAGE_COUNT}
-            </span>
-          </button>
+          {formData.role !== 'admin' && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('permissions')}
+              className={`flex items-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm border-b-2 whitespace-nowrap transition-colors ${
+                activeTab === 'permissions'
+                  ? 'border-violet-600 text-violet-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              <span>Page Permissions</span>
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-violet-100 text-violet-700">
+                {totalEnabledPages}/{TOTAL_PAGE_COUNT}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Error Notice */}
@@ -555,9 +638,21 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
                       <option value="admin">Admin (Full System & User Management)</option>
                     </select>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    Admins get unrestricted access to Global Settings and all modules.
-                  </p>
+                  {formData.role === 'admin' ? (
+                    <div className="mt-2.5 p-3 rounded-xl bg-violet-50/80 border border-violet-200/80 flex items-start gap-2.5 text-xs text-violet-900 animate-in fade-in duration-200">
+                      <Shield className="w-4 h-4 text-violet-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-violet-950 block">Full Administrator Access Granted</span>
+                        <p className="text-violet-700 text-[11px] mt-0.5 leading-relaxed">
+                          Admins automatically receive unrestricted access to all current and future modules (<strong>H3MS</strong>, <strong>Crockery IMS</strong> & <strong>HRMS</strong>) and all {TOTAL_PAGE_COUNT} pages. Page permission configuration is not required.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      Admins get unrestricted access. Standard users require page permissions configuration.
+                    </p>
+                  )}
                 </div>
 
                 {/* Account Status Toggle */}
@@ -597,7 +692,7 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
           )}
 
           {/* TAB 2: PAGE PERMISSIONS */}
-          {activeTab === 'permissions' && (
+          {activeTab === 'permissions' && formData.role !== 'admin' && (
             <div className="space-y-6 animate-in fade-in-50 duration-150">
               {/* Permission Toolbar */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
@@ -641,7 +736,7 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
                 </div>
               </div>
 
-              {/* ORDER RAIL PMS MODULE */}
+              {/* H3MS MODULE */}
               <div className="rounded-xl border border-slate-200/90 overflow-hidden shadow-xs">
                 {/* Section Header */}
                 <div className="p-4 bg-amber-50/60 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
@@ -661,7 +756,7 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
                     </button>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-slate-900 text-sm">Order Rail PMS (H3MS)</span>
+                        <span className="font-extrabold text-slate-900 text-sm">H3MS System</span>
                         <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800">
                           Production & Catering
                         </span>
@@ -856,6 +951,118 @@ export function UserModal({ isOpen, onClose, onSave, editingUser = null }) {
                             className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               isChecked
                                 ? 'bg-violet-100 text-violet-700'
+                                : 'bg-slate-100 text-slate-400'
+                            }`}
+                          >
+                            {isChecked ? 'Granted' : 'Restricted'}
+                          </span>
+                        </div>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* HRMS MODULE */}
+              <div className="rounded-xl border border-slate-200/90 overflow-hidden shadow-xs">
+                {/* Section Header */}
+                <div className="p-4 bg-rose-50/50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleModuleAccessToggle('hrms')}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                        formData.page_access.hrms?.access ? 'bg-rose-600' : 'bg-slate-300'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                          formData.page_access.hrms?.access ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-slate-900 text-sm">HRMS System</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 text-rose-800">
+                          Staff & Operations
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500">Daily Attendance, Directory, Performance TAT, Advances & Payroll</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        disabled={!formData.page_access.hrms?.access}
+                        checked={formData.page_access.hrms?.full_access || false}
+                        onChange={handleHrmsFullAccessToggle}
+                        className="w-3.5 h-3.5 rounded text-rose-600 focus:ring-rose-500"
+                      />
+                      <span>Full Access</span>
+                    </label>
+
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+                      <span>Role:</span>
+                      <select
+                        disabled={!formData.page_access.hrms?.access}
+                        value={formData.page_access.hrms?.role || 'staff'}
+                        onChange={(e) => handleModuleRoleChange('hrms', e.target.value)}
+                        className="py-1 px-2.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white disabled:bg-slate-100 disabled:text-slate-400"
+                      >
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="staff">Staff</option>
+                      </select>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!formData.page_access.hrms?.access || formData.page_access.hrms?.full_access}
+                      onClick={() => handleSelectAllInModule('hrms')}
+                      className="text-xs font-bold text-rose-700 hover:text-rose-800 disabled:text-slate-300 transition-colors"
+                    >
+                      Select All
+                    </button>
+                  </div>
+                </div>
+
+                {/* Page List */}
+                <div className="divide-y divide-slate-100 bg-white">
+                  {filterPages(HRMS_PAGES).map((page) => {
+                    const isChecked =
+                      formData.page_access.hrms?.access &&
+                      (formData.page_access.hrms?.full_access ||
+                        (formData.page_access.hrms?.pages || []).includes(page.id))
+
+                    return (
+                      <label
+                        key={page.id}
+                        className={`flex items-center justify-between p-3.5 hover:bg-slate-50/80 cursor-pointer transition-colors ${
+                          !formData.page_access.hrms?.access ? 'opacity-50 pointer-events-none' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            disabled={formData.page_access.hrms?.full_access}
+                            checked={isChecked}
+                            onChange={() => handlePageToggle('hrms', page.id)}
+                            className="w-4 h-4 rounded text-rose-600 border-slate-300 focus:ring-rose-500 disabled:opacity-50"
+                          />
+                          <div>
+                            <span className="font-bold text-slate-800 text-xs block">{page.name}</span>
+                            <span className="text-[11px] text-slate-400 block">{page.desc}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">{page.route}</span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              isChecked
+                                ? 'bg-rose-100 text-rose-700'
                                 : 'bg-slate-100 text-slate-400'
                             }`}
                           >

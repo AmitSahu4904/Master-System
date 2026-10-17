@@ -342,9 +342,11 @@ export function GlobalSettingsPage() {
                   </tr>
                 ) : (
                   filteredUsers.map((user) => {
+                    const isAdmin = user.role === 'admin'
                     const pa = user.page_access || {}
-                    const hasPms = pa.pms?.access === true
-                    const hasIms = pa.ims?.access === true
+                    const hasH3ms = isAdmin || pa.pms?.access === true
+                    const hasIms = isAdmin || pa.ims?.access === true
+                    const hasHrms = isAdmin || pa.hrms?.access === true
 
                     return (
                       <tr key={user.id} className="hover:bg-slate-50/60 transition-colors">
@@ -412,12 +414,12 @@ export function GlobalSettingsPage() {
                           <div className="flex items-center gap-1.5">
                             <span
                               className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                hasPms
+                                hasH3ms
                                   ? 'bg-amber-100 text-amber-800'
                                   : 'bg-slate-100 text-slate-300 line-through'
                               }`}
                             >
-                              PMS
+                              H3MS
                             </span>
                             <span
                               className={`px-2 py-0.5 rounded text-[10px] font-bold ${
@@ -427,6 +429,15 @@ export function GlobalSettingsPage() {
                               }`}
                             >
                               Crockery
+                            </span>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                hasHrms
+                                  ? 'bg-rose-100 text-rose-800'
+                                  : 'bg-slate-100 text-slate-300 line-through'
+                              }`}
+                            >
+                              HRMS
                             </span>
                           </div>
                         </td>

@@ -17,53 +17,53 @@ export function MasterLayout() {
       case '/global-settings':
         return 'Global Settings'
       case '/pms/dashboard':
-        return 'PMS · Dashboard'
+        return 'H3MS · Dashboard'
       case '/pms/bookings':
-        return 'PMS · Booking Master'
+        return 'H3MS · Booking Master'
       case '/pms/menu-finalize':
-        return 'PMS · Menu Finalize'
+        return 'H3MS · Menu Finalize'
       case '/pms/menu-chatbot':
-        return 'PMS · Menu AI Chatbot'
+        return 'H3MS · Menu AI Chatbot'
       case '/pms/whatsapp':
-        return 'PMS · WhatsApp Hub'
+        return 'H3MS · WhatsApp Hub'
       case '/pms/kitchen-preparation':
-        return 'PMS · Kitchen Preparation'
+        return 'H3MS · Kitchen Preparation'
       case '/pms/tag-print':
-        return 'PMS · Tag Print'
+        return 'H3MS · Tag Print'
       case '/pms/dress':
-        return 'PMS · Dress Department'
+        return 'H3MS · Dress Department'
       case '/pms/decor-list':
-        return 'PMS · Decor List'
+        return 'H3MS · Decor List'
       case '/pms/crockery-list':
-        return 'PMS · Crockery Requisition'
+        return 'H3MS · Crockery Requisition'
       case '/pms/menu-kitchen-requirement':
-        return 'PMS · Kitchen Requirement'
+        return 'H3MS · Kitchen Requirement'
       case '/pms/vegetables':
-        return 'PMS · Vegetables'
+        return 'H3MS · Vegetables'
       case '/pms/cheese-dairy-products':
-        return 'PMS · Cheese & Dairy Products'
+        return 'H3MS · Cheese & Dairy Products'
       case '/pms/vendor-coordination':
-        return 'PMS · Vendor Coordination'
+        return 'H3MS · Vendor Coordination'
       case '/pms/bakery':
-        return 'PMS · Bakery'
+        return 'H3MS · Bakery'
       case '/pms/ice-water-requirement':
-        return 'PMS · Ice & Water'
+        return 'H3MS · Ice & Water'
       case '/pms/loading-boys-aunties':
-        return 'PMS · Loading Boys & Aunties'
+        return 'H3MS · Loading Boys & Aunties'
       case '/pms/vehicle-requirement':
-        return 'PMS · Vehicle Requirement'
+        return 'H3MS · Vehicle Requirement'
       case '/pms/gas-cylinder':
-        return 'PMS · Gas Cylinder'
+        return 'H3MS · Gas Cylinder'
       case '/pms/fresh-flowers':
-        return 'PMS · Fresh Flowers'
+        return 'H3MS · Fresh Flowers'
       case '/pms/waiters':
-        return 'PMS · Waiters'
+        return 'H3MS · Waiters'
       case '/pms/outsourcing-team':
-        return 'PMS · Outsourcing Team'
+        return 'H3MS · Outsourcing Team'
       case '/pms/masters':
-        return 'PMS · Master Data'
+        return 'H3MS · Master Data'
       case '/pms/notifications':
-        return 'PMS · Delay & Notification Logs'
+        return 'H3MS · Delay & Notification Logs'
       case '/crockery/dashboard':
         return 'Crockery · Dashboard'
       case '/crockery/stock':
@@ -72,9 +72,24 @@ export function MasterLayout() {
         return 'Crockery · Inventory & Party Issue'
       case '/crockery/master':
         return 'Crockery · Master Catalog'
+      case '/hrms/attendance':
+        return 'HRMS · Daily Attendance'
+      case '/hrms/directory':
+        return 'HRMS · Staff Directory'
+      case '/hrms/performance':
+        return 'HRMS · Performance & TAT'
+      case '/hrms/advances':
+        return 'HRMS · Salary Advances'
+      case '/hrms/approval':
+        return 'HRMS · Advance Approval'
+      case '/hrms/overtime':
+        return 'HRMS · Overtime (OT)'
+      case '/hrms/payroll':
+        return 'HRMS · Monthly Payroll'
       default:
-        if (location.pathname.startsWith('/pms')) return 'Order Rail PMS'
+        if (location.pathname.startsWith('/pms')) return 'H3MS System'
         if (location.pathname.startsWith('/crockery')) return 'Crockery IMS'
+        if (location.pathname.startsWith('/hrms')) return 'HRMS System'
         return 'H3 Epicura'
     }
   }
